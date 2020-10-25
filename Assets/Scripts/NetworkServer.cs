@@ -47,6 +47,8 @@ public class NetworkServer : MonoBehaviour
         // SendToClient(JsonUtility.ToJson(m),c);        
     }
 
+
+
     void OnData(DataStreamReader stream, int i){
         NativeArray<byte> bytes = new NativeArray<byte>(stream.Length,Allocator.Temp);
         stream.ReadBytes(bytes);
@@ -117,10 +119,12 @@ public class NetworkServer : MonoBehaviour
                 {
                     OnData(stream, i);
                 }
+                
                 else if (cmd == NetworkEvent.Type.Disconnect)
                 {
                     OnDisconnect(i);
                 }
+                
 
                 cmd = m_Driver.PopEventForConnection(m_Connections[i], out stream);
             }

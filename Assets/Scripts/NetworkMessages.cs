@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using NetworkMessages;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Networking.Transport;
 using UnityEngine;
 
 namespace NetworkMessages
@@ -31,6 +33,7 @@ namespace NetworkMessages
         public PlayerUpdateMsg(){      // Constructor
             cmd = Commands.PLAYER_UPDATE;
             player = new NetworkObjects.NetworkPlayer();
+            Debug.Log(player.cubPos);   //Should update the players position based off the cube
         }
     };
 
@@ -48,8 +51,15 @@ namespace NetworkMessages
             cmd = Commands.SERVER_UPDATE;
             players = new List<NetworkObjects.NetworkPlayer>();
         }
+
+        //public static void PlayerPosition(NetworkObjects.NetworkPlayer player)
+        //{
+          
+        //}
     }
-} 
+}
+
+
 
 namespace NetworkObjects
 {
@@ -61,9 +71,59 @@ namespace NetworkObjects
     public class NetworkPlayer : NetworkObject{
         public Color cubeColor;
         public Vector3 cubPos;
+        public Quaternion rotation;
+
+        float moveSpeed = 5f;
+        bool[] inputs;
+        
 
         public NetworkPlayer(){
             cubeColor = new Color();
+            cubPos = new Vector3();
+            rotation = new Quaternion();
+        }
+
+        public void Update()
+        {
+            Vector2 _inputDirection = Vector2.zero;
+
+            if(inputs[0])
+            {
+                _inputDirection.y += 1;
+            }
+            if (inputs[1])
+            {
+                _inputDirection.y += 1;
+            }
+            if (inputs[2])
+            {
+                _inputDirection.x += 1;
+            }
+            if (inputs[3])
+            {
+                _inputDirection.x += 1;
+            }
+
+            Move(_inputDirection);
+        }
+
+        private void Move(Vector2 _inputDirection)
+        {
+            Vector3 forward = Vector3.forward;
+            Vector3 right = Vector3.Normalize(Vector3.Cross(forward, new Vector3(0, 1, 0)));
+
+            Vector3 moveDirection = right * _inputDirection.x + forward * _inputDirection.y;
+            cubPos += moveDirection * moveSpeed;
+
+           // ServerUpdateMsg.PlayerPosition(this);
+           // ServerUpdateMsg.PlayerRotation(this);
+           
+        }
+
+        public void SetInput(bool[] _inputs, Quaternion _rotation)
+        {
+            inputs = _inputs;
+            rotation = _rotation;
         }
     }
 }
